@@ -26,6 +26,7 @@ jobs:
           mv llvm-mingw-* llvm-mingw
           git clone https://github.com/microsoft/vcpkg.git
           cd vcpkg
+          git checkout d07689ef165f033de5c0710e4f67c193a85373e1
           ./bootstrap-vcpkg.sh
           
       - name: Install libraries from vcpkg

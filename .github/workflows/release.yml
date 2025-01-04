@@ -125,13 +125,13 @@ jobs:
             ./vcpkg install \
               --overlay-triplets=triplets_overlay \
               --clean-after-build \
-              --triplet=x64-mingw-static-release \
+              --triplet=x64-mingw-static \
               --allow-unsupported \
               mp3lame
             ./vcpkg install \
               --overlay-triplets=triplets_overlay \
               --clean-after-build \
-              --triplet=x64-mingw-static-release \
+              --triplet=x64-mingw-static \
               --allow-unsupported \
               $packages
   

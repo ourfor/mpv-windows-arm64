@@ -4,80 +4,80 @@ on:
   push:
 
 jobs:
-  build-windows-arm64:
-    name: Build
-    runs-on: ubuntu-latest
-    env:
-      mpv_version: "0.39.0"
-      llvm_path: "${{ github.workspace }}/llvm-mingw"
+  # build-windows-arm64:
+  #   name: Build
+  #   runs-on: ubuntu-latest
+  #   env:
+  #     mpv_version: "0.39.0"
+  #     llvm_path: "${{ github.workspace }}/llvm-mingw"
     
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: Install tools
-        run: |
-          sudo apt update
-          sudo apt install build-essential cmake ninja-build pkg-config p7zip nasm python3-pip autoconf-archive 
-          sudo python3 -m pip install meson cython
-          wget https://github.com/mstorsjo/llvm-mingw/releases/download/20231128/llvm-mingw-20231128-ucrt-ubuntu-20.04-x86_64.tar.xz
-          tar -xf llvm-mingw-*.tar.xz
-          rm llvm-mingw-*.tar.xz
-          mv llvm-mingw-* llvm-mingw
-          git clone https://github.com/microsoft/vcpkg.git
-          cd vcpkg
-          git checkout d07689ef165f033de5c0710e4f67c193a85373e1
-          ./bootstrap-vcpkg.sh
+  #     - name: Install tools
+  #       run: |
+  #         sudo apt update
+  #         sudo apt install build-essential cmake ninja-build pkg-config p7zip nasm python3-pip autoconf-archive 
+  #         sudo python3 -m pip install meson cython
+  #         wget https://github.com/mstorsjo/llvm-mingw/releases/download/20231128/llvm-mingw-20231128-ucrt-ubuntu-20.04-x86_64.tar.xz
+  #         tar -xf llvm-mingw-*.tar.xz
+  #         rm llvm-mingw-*.tar.xz
+  #         mv llvm-mingw-* llvm-mingw
+  #         git clone https://github.com/microsoft/vcpkg.git
+  #         cd vcpkg
+  #         git checkout d07689ef165f033de5c0710e4f67c193a85373e1
+  #         ./bootstrap-vcpkg.sh
           
-      - name: Install libraries from vcpkg
-        run: |
-          PATH=$PATH:${{ env.llvm_path }}/bin
-          cd vcpkg
-          git apply ${{ github.workspace }}/patches/0001-support-openssl-arm64-mingw-static-release.patch
-          git apply ${{ github.workspace }}/patches/0002-support-ffmpeg-arm64-mingw.patch
-          git apply ${{ github.workspace }}/patches/0004-build-ffmpeg-with-d3d11va-and-dxva2.patch
-          git apply ${{ github.workspace }}/patches/0005-fix-rubberband-for-mingw-arm64.patch
-          # tell vcpkg to only build Release variants of the dependencies
-          mkdir triplets_overlay
-          cp triplets/community/arm64-mingw-static.cmake triplets_overlay/arm64-mingw-static-release.cmake
-          echo "set(VCPKG_BUILD_TYPE release)" >> triplets_overlay/arm64-mingw-static-release.cmake
-          echo "set(VCPKG_BUILD_TYPE release)" >> triplets/x64-linux.cmake
-          # clear buildtrees after each package installation to reduce disk space requirements
-          packages="ffmpeg[ass,fdk-aac,freetype,fribidi,iconv,mp3lame,openssl,x264,zlib,xml2,opengl,lzma,bzip2,dav1d,fontconfig,openjpeg] xxhash lcms mujs libjpeg-turbo libarchive jack2 vulkan-loader rubberband uchardet openal-soft"
-          ./vcpkg upgrade \
-            --overlay-triplets=triplets_overlay \
-            --no-dry-run
-          ./vcpkg install \
-            --overlay-triplets=triplets_overlay \
-            --clean-after-build \
-            --triplet=arm64-mingw-static-release \
-            --allow-unsupported \
-            mp3lame
-          ./vcpkg install \
-            --overlay-triplets=triplets_overlay \
-            --clean-after-build \
-            --triplet=arm64-mingw-static-release \
-            --allow-unsupported \
-            $packages
+  #     - name: Install libraries from vcpkg
+  #       run: |
+  #         PATH=$PATH:${{ env.llvm_path }}/bin
+  #         cd vcpkg
+  #         git apply ${{ github.workspace }}/patches/0001-support-openssl-arm64-mingw-static-release.patch
+  #         git apply ${{ github.workspace }}/patches/0002-support-ffmpeg-arm64-mingw.patch
+  #         git apply ${{ github.workspace }}/patches/0004-build-ffmpeg-with-d3d11va-and-dxva2.patch
+  #         git apply ${{ github.workspace }}/patches/0005-fix-rubberband-for-mingw-arm64.patch
+  #         # tell vcpkg to only build Release variants of the dependencies
+  #         mkdir triplets_overlay
+  #         cp triplets/community/arm64-mingw-static.cmake triplets_overlay/arm64-mingw-static-release.cmake
+  #         echo "set(VCPKG_BUILD_TYPE release)" >> triplets_overlay/arm64-mingw-static-release.cmake
+  #         echo "set(VCPKG_BUILD_TYPE release)" >> triplets/x64-linux.cmake
+  #         # clear buildtrees after each package installation to reduce disk space requirements
+  #         packages="ffmpeg[ass,fdk-aac,freetype,fribidi,iconv,mp3lame,openssl,x264,zlib,xml2,opengl,lzma,bzip2,dav1d,fontconfig,openjpeg] xxhash lcms mujs libjpeg-turbo libarchive jack2 vulkan-loader rubberband uchardet openal-soft"
+  #         ./vcpkg upgrade \
+  #           --overlay-triplets=triplets_overlay \
+  #           --no-dry-run
+  #         ./vcpkg install \
+  #           --overlay-triplets=triplets_overlay \
+  #           --clean-after-build \
+  #           --triplet=arm64-mingw-static-release \
+  #           --allow-unsupported \
+  #           mp3lame
+  #         ./vcpkg install \
+  #           --overlay-triplets=triplets_overlay \
+  #           --clean-after-build \
+  #           --triplet=arm64-mingw-static-release \
+  #           --allow-unsupported \
+  #           $packages
 
-      - name: Build arm64 mpv
-        run: |
-          chmod 755 ./build-cross.sh
-          ./build-cross.sh
+  #     - name: Build arm64 mpv
+  #       run: |
+  #         chmod 755 ./build-cross.sh
+  #         ./build-cross.sh
 
-      - name: Upload arm64 build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: mpv_${{ env.mpv_version }}_arm64
-          path: mpv_*.7z
+  #     - name: Upload arm64 build artifacts
+  #       uses: actions/upload-artifact@v3
+  #       with:
+  #         name: mpv_${{ env.mpv_version }}_arm64
+  #         path: mpv_*.7z
 
-      - name: Batch release
-        uses: softprops/action-gh-release@v1
-        if: startsWith(github.ref, 'refs/tags/')
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          files: mpv_*.7z
+  #     - name: Batch release
+  #       uses: softprops/action-gh-release@v1
+  #       if: startsWith(github.ref, 'refs/tags/')
+  #       env:
+  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+  #       with:
+  #         files: mpv_*.7z
 
   build-windows-x86_64:
       name: Build
@@ -125,13 +125,13 @@ jobs:
             ./vcpkg install \
               --overlay-triplets=triplets_overlay \
               --clean-after-build \
-              --triplet=x64-mingw-static \
+              --triplet=x64-mingw-dynamic \
               --allow-unsupported \
               mp3lame
             ./vcpkg install \
               --overlay-triplets=triplets_overlay \
               --clean-after-build \
-              --triplet=x64-mingw-static \
+              --triplet=x64-mingw-dynamic \
               --allow-unsupported \
               $packages
   

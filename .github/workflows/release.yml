@@ -60,27 +60,27 @@ jobs:
             --allow-unsupported \
             $packages
 
-      - name: Build mpv
+      - name: Build arm64 mpv
         run: |
           chmod 755 ./build-cross.sh
           ./build-cross.sh
 
-      - name: Upload build artifacts
+      - name: Upload arm64 build artifacts
         uses: actions/upload-artifact@v3
         with:
           name: mpv_${{ env.mpv_version }}_arm64
           path: mpv_*.7z
 
-      - name: Build mpv
+      - name: Build x64 mpv
         run: |
           chmod 755 ./build-cross.sh
           ./build-cross.sh x86_64-w64-mingw32
 
-          - name: Upload build artifacts
-          uses: actions/upload-artifact@v3
-          with:
-            name: mpv_${{ env.mpv_version }}_x64
-            path: mpv_*.7z
+      - name: Upload x64 build artifacts
+        uses: actions/upload-artifact@v3
+        with:
+          name: mpv_${{ env.mpv_version }}_x64
+          path: mpv_*.7z
 
       - name: Batch release
         uses: softprops/action-gh-release@v1

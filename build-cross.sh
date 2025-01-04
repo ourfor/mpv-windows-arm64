@@ -24,7 +24,7 @@ wget="wget -nc --progress=bar:force"
 gitclone="git clone --depth=1 --recursive"
 
 export PATH=$llvm_dir/bin:$PATH
-export TARGET=aarch64-w64-mingw32
+export TARGET=${1:-aarch64-w64-mingw32}
 export CC=$TARGET-gcc
 export CXX=$TARGET-g++
 export AR=$TARGET-ar

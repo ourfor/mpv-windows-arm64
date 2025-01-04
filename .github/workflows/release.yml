@@ -1,4 +1,4 @@
-name: Build for Windows ARM64
+name: Build for Windows
 
 on:
   push:
@@ -8,7 +8,7 @@ jobs:
     name: Build
     runs-on: ubuntu-latest
     env:
-      mpv_version: "0.37.0"
+      mpv_version: "0.39.0"
       llvm_path: "${{ github.workspace }}/llvm-mingw"
     
     steps:
@@ -70,6 +70,17 @@ jobs:
         with:
           name: mpv_${{ env.mpv_version }}_arm64
           path: mpv_*.7z
+
+      - name: Build mpv
+        run: |
+          chmod 755 ./build-cross.sh
+          ./build-cross.sh x86_64-w64-mingw32
+
+          - name: Upload build artifacts
+          uses: actions/upload-artifact@v3
+          with:
+            name: mpv_${{ env.mpv_version }}_x64
+            path: mpv_*.7z
 
       - name: Batch release
         uses: softprops/action-gh-release@v1
